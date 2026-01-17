@@ -1,1 +1,24 @@
-rfwe
+Snake Neon 2026 (ZMEIKA Online) - Online action web game, inspired by Taneli Armanto, recreated by Russian developers Axyonov Nazar, Vladimir Gartsev, Leonid Kurov,
+Nikita Ermakov. 
+
+Terms of use:
+1. Section 107 of the Copyright Act gives examples of purposes that are favored by fair use: “criticism, comment, news reporting, teaching (including multiple copies
+for classroom use), scholarship, research.” Use for one of these purposes is not automatically fair, and uses for other purposes can be fair. The statute lays 
+out four factors to consider in deciding whether a particular use is fair.
+2. The game was recreated in educative purposes and doesn't pretend to be original. Every rights on this game holds Google LLC (c)
+3. Free copying and recreation/modifying is allowed. This project doesn't have any copyright rights.
+4. This is an open source game, so any commercial use or using our project for your open-source project is allowed to use.
+
+User functionality:
+1. Basically, this game contains 3 sites. "index" is an entry site, greeting user with quick description of the game and quick play button.
+2. Game itself contains simple playing scenario (borderless), using WASD or arrows to move the snake
+3. Death redirects you to "death.html" page with your saved score. There, you may save your score and share it in leaderboard with other players.
+4. Button "Replay" send you back in the game.
+5. Button "Leaderboard" is a data site where your progress is saved and could be shared with other people. 
+
+Code language used:
+* JavaScript (ECMAScript 2024 (ES2024))
+* HTML5 
+
+Programs involved in creation of this game and site:
+* Microsoft Visual Studio 2022
