@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Snake 2026</title>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #0062ff;
+            --accent: #ff007a;
+            --bg: #050505;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .score-board {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--primary);
+            margin-bottom: 20px;
+        }
+
+        #game-container {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            display: block;
+            background: #000;
+            border-radius: 5px;
+        }
+
+        .controls-hint {
+            margin-top: 20px;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="score-board">Score: <span id="score">000</span></div>
+
+    <div id="game-container">
+        <canvas id="game" width="400" height="400"></canvas>
+    </div>
+
+    <div class="controls-hint">WASD or Arrows to Move</div>
+
+    <script>
+        const canvas = document.getElementById("game");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
+
+        // Загрузка изображений
+        const snakeHeadImg = new Image();
+        snakeHeadImg.src = 'Snake_Head_v3.png';
+
+        const snakeBodyImg = new Image();
+        snakeBodyImg.src = 'Snake_Body.png';
+
+        const appleImg = new Image();
+        appleImg.src = 'Apple.png';
+
+        const grid = 20;
+        let count = 0;
+        let score = 0;
+        let gameOver = false;
+
+        let snake = {
+            x: 640,
+            y: 640,
+            dx: grid,
+            dy: 0,
+            cells: [],
+            maxCells: 4
+        };
+
+        let apple = {
+            x: 320,
+            y: 320
+        };
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
+        function loop() {
+            if (gameOver) return;
+            requestAnimationFrame(loop);
+
+            // Ограничение FPS (скорость игры)
+            if (++count < 6) return;
+            count = 0;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Движение змейки
+            snake.x += snake.dx;
+            snake.y += snake.dy;
+
+            // Проход сквозь стены
+            if (snake.x < 0) snake.x = canvas.width - grid;
+            else if (snake.x >= canvas.width) snake.x = 0;
+            if (snake.y < 0) snake.y = canvas.height - grid;
+            else if (snake.y >= canvas.height) snake.y = 0;
+
+            snake.cells.unshift({x: snake.x, y: snake.y});
+
+            if (snake.cells.length > snake.maxCells) {
+                snake.cells.pop();
+            }
+
+            // Отрисовка ЕДЫ
+            ctx.drawImage(appleImg, apple.x, apple.y, grid, grid);
+
+            // Отрисовка ЗМЕЙКИ
+            snake.cells.forEach(function(cell, index) {
+                if (index === 0) {
+                    // ГОЛОВА с поворотом
+                    ctx.save();
+                    ctx.translate(cell.x + grid / 2, cell.y + grid / 2);
+                    
+                    // Поворот в зависимости от направления
+                    let angle = 0;
+                    if (snake.dx === grid) angle = 0;
+                    else if (snake.dx === -grid) angle = Math.PI;
+                    else if (snake.dy === -grid) angle = -Math.PI / 2;
+                    else if (snake.dy === grid) angle = Math.PI / 2;
+                    
+                    ctx.rotate(angle);
+                    ctx.drawImage(snakeHeadImg, -grid / 2, -grid / 2, grid, grid);
+                    ctx.restore();
+                } else {
+                    // ТЕЛО
+                    ctx.globalAlpha = 1 - (index / snake.cells.length) * 0.4;
+                    ctx.drawImage(snakeBodyImg, cell.x, cell.y, grid, grid);
+                    ctx.globalAlpha = 1;
+                }
+
+                // Поедание яблока
+                if (cell.x === apple.x && cell.y === apple.y) {
+                    snake.maxCells++;
+                    score += 10;
+                    scoreElement.innerText = score.toString().padStart(3, '0');
+                    apple.x = getRandomInt(0, 20) * grid;
+                    apple.y = getRandomInt(0, 20) * grid;
+                }
+
+                // Проверка столкновения с собой
+                for (let i = index + 1; i < snake.cells.length; i++) {
+                    if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+                        gameOver = true;
+                        window.location.href = `death.html?score=${score}`;
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.key === 'ArrowLeft' || e.key === 'a') && snake.dx === 0) {
+                snake.dx = -grid; snake.dy = 0;
+            } else if ((e.key === 'ArrowUp' || e.key === 'w') && snake.dy === 0) {
+                snake.dy = -grid; snake.dx = 0;
+            } else if ((e.key === 'ArrowRight' || e.key === 'd') && snake.dx === 0) {
+                snake.dx = grid; snake.dy = 0;
+            } else if ((e.key === 'ArrowDown' || e.key === 's') && snake.dy === 0) {
+                snake.dy = grid; snake.dx = 0;
+            }
+        });
+
+        // Запуск игры
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>
