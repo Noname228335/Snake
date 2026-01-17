@@ -136,7 +136,7 @@
         }
 
         function loop() {
-            if (gameOver) return; // Останавливаем цикл после смерти
+            if (gameOver) return;
 
             requestAnimationFrame(loop);
 
@@ -150,7 +150,6 @@
             snake.x += snake.dx;
             snake.y += snake.dy;
 
-            // Сквозной проход через стены
             if (snake.x < 0) snake.x = canvas.width - grid;
             else if (snake.x >= canvas.width) snake.x = 0;
             
@@ -163,7 +162,6 @@
                 snake.cells.pop();
             }
 
-            // Отрисовка еды
             ctx.shadowBlur = 15;
             ctx.shadowColor = "#ff007a";
             ctx.fillStyle = "#ff007a";
@@ -171,7 +169,6 @@
             ctx.arc(apple.x + grid/2, apple.y + grid/2, grid/2.5, 0, Math.PI * 2);
             ctx.fill();
 
-            // Отрисовка змейки
             ctx.shadowBlur = 10;
             ctx.shadowColor = "#00f2ff";
             
@@ -183,7 +180,6 @@
                 ctx.roundRect(cell.x + 1, cell.y + 1, grid - 2, grid - 2, 5);
                 ctx.fill();
 
-                // Съели яблоко
                 if (cell.x === apple.x && cell.y === apple.y) {
                     snake.maxCells++;
                     score += 10;
@@ -192,11 +188,9 @@
                     apple.y = getRandomInt(0, 20) * grid;
                 }
 
-                // Столкновение с хвостом
                 for (let i = index + 1; i < snake.cells.length; i++) {
                     if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
                         gameOver = true;
-                        // РЕДИРЕКТ НА СТРАНИЦУ СМЕРТИ 2026
                         window.location.href = `death.html?score=${score}`;
                     }
                 }

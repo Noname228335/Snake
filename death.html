@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com" rel="stylesheet">
     <style>
         :root {
-            --primary: #ff007a; /* Розовый неон для экрана смерти */
+            --primary: #ff007a;
             --secondary: #00f2ff;
             --bg: #050505;
         }
@@ -25,7 +25,6 @@
             text-align: center;
         }
 
-        /* Фоновое свечение */
         .glow {
             position: absolute;
             width: 400px;
@@ -122,17 +121,16 @@
 
     <div class="container">
         <h1>GAME OVER</h1>
-        <div class="result-label">Ваш финальный счёт</div>
+        <div class="result-label">Your final score</div>
         <span class="score-value" id="finalScore">000</span>
 
         <div class="actions">
-            <a href="game.html" class="btn btn-retry">Ещё раз</a>
-            <a href="index.html" class="btn btn-menu">В меню</a>
+            <a href="game.html" class="btn btn-retry">Try again</a>
+            <a href="index.html" class="btn btn-menu">Menu</a>
         </div>
     </div>
 
     <script>
-        // Получаем счет из URL (например, death.html?score=150)
         const urlParams = new URLSearchParams(window.location.search);
         const score = urlParams.get('score') || 0;
         document.getElementById('finalScore').innerText = score.toString().padStart(3, '0');
