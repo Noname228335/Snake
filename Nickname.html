@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Введите ник | Neon Snake</title>
+    <style>
+        :root {
+            --primary: #ff007a;
+            --secondary: #00f2ff;
+            --bg: #050505;
+            --dark: #111;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 122, 0.3);
+            box-shadow: 0 0 30px rgba(255, 0, 122, 0.2);
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin: 0 0 25px 0;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary);
+            letter-spacing: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 1.1rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--secondary);
+            background: var(--dark);
+            color: white;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 14px 35px;
+            background: var(--secondary);
+            color: black;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 18px var(--secondary);
+        }
+
+        .message {
+            margin: 20px 0;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+        }
+
+        .btn-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+
+        .btn-link:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Введите никнейм</h1>
+
+    <div class="form-group">
+        <label for="playerNick">Ваш ник</label>
+        <input type="text" id="playerNick" placeholder="Например: Neo" maxlength="12" required>
+    </div>
+
+    <button onclick="saveScoreWithNick()">Сохранить результат</button>
+
+    <div id="message" class="message"></div>
+
+    <a href="leaderboard.html" class="btn-link">Перейти к таблице лидеров</a>
+</div>
+
+<script>
+    // Ключ для localStorage (должен совпадать с leaderboard.html)
+    const LEADERBOARD_KEY = 'neonSnakeLeaderboard';
+
+    // Ключ, под которым игра сохраняет текущий счёт (пример)
+    const CURRENT_SCORE_KEY = 'currentSnakeScore';
+
+    // Загрузка таблицы лидеров
+    function loadLeaderboard() {
+        const saved = localStorage.getItem(LEADERBOARD_KEY);
+        return saved ? JSON.parse(saved) : [];
+    }
+
+    // Сохранение таблицы лидеров
+    function saveLeaderboard(board) {
+        localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(board));
+    }
+
+    // Добавление нового результата
+    function addScore(nick, score) {
+        const board = loadLeaderboard();
+        board.push({ nick, score });
+        // Сортируем по убыванию очков
+        board.sort((a, b) => b.score - a.score);
+        // Оставляем только топ‑3
+        saveLeaderboard(board.slice(0, 3));
+    }
+
+    // Получение текущего счёта из localStorage
+    function getCurrentScore() {
+        const scoreStr = localStorage.getItem(CURRENT_SCORE_KEY);
+        return scoreStr ? parseInt(scoreStr) : 0;
+    }
+
+    // Функция: показать сообщение
+    function showMessage(text, color) {
+        const messageEl = document.getElementById('message');
+        messageEl.textContent = text;
+        messageEl.style.backgroundColor = `rgba${getRgbaFromColor(color, 0.2)}`;
+        messageEl.style.color = color;
+        messageEl.style.display = 'block';
+
+        setTimeout(() => {
+            messageEl.style.display = 'none';
+        }, 3000);
+    }
+
+    // Вспомогательная функция: конвертирует цвет в rgba для фона
+    function getRgbaFromColor(color, alpha) {
+        if (color === 'green') return '(0, 128, 0, ' + alpha + ')';
+        if (color === 'red') return '(255, 0, 0, ' + alpha + ')';
+        if (color === 'orange') return '(255, 165, 0, ' + alpha + ')';
+        return '(255, 255, 255, ' + alpha + ')';
+    }
+
+    // Обработчик кнопки «Сохранить результат»
+    function saveScoreWithNick() {
+        const nickInput = document.getElementById('playerNick');
+        const nick = nickInput.value.trim();
+
+        // Валидация ника
+        if (!nick) {
+            showMessage('Введите никнейм!', 'red');
+            nickInput.focus();
+            return;
+        }
+        if (nick.length > 12) {
+            showMessage('Никнейм не более 12 символов!', 'orange');
+            return;
+        }
+
+        // Получаем очки из localStorage (которые сохранила игра)
+        const urlParams = new URLSearchParams(window.location.search);
+       const score = urlParams.get('score') || 0;
+        if (score === 0) {
+            showMessage('Очки не найдены! Сыграйте сначала.', 'orange');
+            return;
+        }
+
+        // Сохраняем результат в таблицу лидеров
+        addScore(nick, score);
+
+        // Показываем успех
+        showMessage(`Сохранено: ${nick} — ${score} очков`, 'green');
+
+        // Через 2 секунды переходим на страницу лидеров
+        setTimeout(() => {
+            window.location.href = 'leaderboard.html';
+        }, 2000);
+    }
+
+    // Инициализация: проверяем, есть ли очки
+    document.addEventListener('DOMContentLoaded', () => {
+        const score = getCurrentScore();
+
+        // Если очков нет, предупреждаем пользователя
+        if (score === 0) {
+            showMessage('Очки не найдены! Сыграйте сначала.', 'orange');
+        } else {
+            // Показываем, сколько очков будет сохранено
+            showMessage(`Ваш текущий счёт: ${score} очков`, 'var(--secondary)');
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | Neon Snake</title>
+    <style>
+        :root {
+            --primary: #ff007a;
+            --secondary: #00f2ff;
+            --bg: #050505;
+            --dark: #111;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 122, 0.3);
+            box-shadow: 0 0 30px rgba(255, 0, 122, 0.2);
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0 0 30px 0;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary);
+            letter-spacing: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+
+        th {
+            background: rgba(0, 242, 255, 0.2);
+            color: black;
+            font-weight: bold;
+        }
+
+        /* Стили для мест */
+        .first-place { background: linear-gradient(45deg, #ffd700, #ff6b00); color: black; font-weight: bold; }
+        .second-place { background: linear-gradient(45deg, #c0c0c0, #a0a0a0); color: black; font-weight: bold; }
+        .third-place { background: linear-gradient(45deg, #cd7f32, #b87333); color: black; font-weight: bold; }
+
+        .place { width: 60px; }
+        .nick { font-weight: 500; }
+        .score { font-weight: 700; }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--secondary);
+            background: var(--dark);
+            color: white;
+            border-radius: 5px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: var(--secondary);
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--secondary);
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            text-decoration: none;
+            color: white;
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            color: black;
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.5);
+        }
+
+        .message {
+            margin: 15px 0;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Leaderboard</h1>
+
+    <!-- Сообщение, если нет данных -->
+    <div id="noData" class="message" style="display: none;">
+        Пока нет записей в таблице лидеров.
+    </div>
+
+    <!-- Форма для ввода ника (показывается, если score есть, а nick — нет) -->
+    <div class="input-group" id="nickForm" style="display: none;">
+        <input type="text" id="playerNick" placeholder="Ваш никнейм" maxlength="12" autocomplete="off">
+        <button onclick="saveScoreWithNick()">Сохранить</button>
+    </div>
+
+    <!-- Таблица лидеров -->
+    <table id="leaderboard">
+        <thead>
+            <tr>
+                <th>Место</th>
+                <th>Никнейм</th>
+                <th>Очки</th>
+            </tr>
+        </thead>
+        <tbody id="leaderboard-tbody">
+            <!-- Строки будут добавлены скриптом -->
+        </tbody>
+    </table>
+
+    <div class="actions">
+        <a href="Game2.html" class="btn">Играть снова</a>
+        <a href="index.html" class="btn">Меню</a>
+         <button onclick="clearLeaderboard()" class="btn" style="background: #ff3333;">Очистить таблицу</button>
+    </div>
+</div>
+
+<script>
+// Функция: очистить таблицу лидеров
+function clearLeaderboard() {
+    // Спрашиваем подтверждение
+    const confirmClear = confirm('Вы уверены, что хотите очистить таблицу лидеров? Все данные будут удалены!');
+    
+    
+    if (confirmClear) {
+        // Удаляем данные из localStorage
+        localStorage.removeItem(LEADERBOARD_KEY);
+        
+        
+        // Обновляем отображение
+        renderLeaderboard();
+        
+        // Показываем сообщение
+        alert('Таблица лидеров очищена!');
+    }
+}
+    // Ключ для localStorage
+    const LEADERBOARD_KEY = 'neonSnakeLeaderboard';
+
+    // Получаем параметры из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const scoreFromUrl = parseInt(urlParams.get('score')) || 0;
+    const nickFromUrl = urlParams.get('nick') || null;
+
+    // Загрузка таблицы из localStorage
+    function loadLeaderboard() {
+        const saved = localStorage.getItem(LEADERBOARD_KEY);
+        return saved ? JSON.parse(saved) : [];
+    }
+
+    // Сохранение таблицы в localStorage
+    function saveLeaderboard(board) {
+        localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(board));
+    }
+
+    // Добавление нового результата
+    function addScore(nick, score) {
+        const board = loadLeaderboard();
+        board.push({ nick, score });
+        // Сортируем по убыванию очков
+        board.sort((a, b) => b.score - a.score);
+        // Оставляем только топ‑3
+        saveLeaderboard(board.slice(0, 3));
+    }
+
+    // Отображение таблицы
+    function renderLeaderboard() {
+        const board = loadLeaderboard();
+        const tbody = document.getElementById('leaderboard-tbody');
+        tbody.innerHTML = '';
+
+        if (board.length === 0) {
+            document.getElementById('noData').style.display = 'block';
+            return;
+        } else {
+            document.getElementById('noData').style.display = 'none';
+        }
+
+        // Заполняем строки таблицы
+        board.forEach((player, index) => {
+            const row = document.createElement('tr');
+
+            // Назначаем класс для визуального выделения места
+            let placeClass = '';
+            if (index === 0) placeClass = 'first-place';
+            else if (index === 1) placeClass = 'second-place';
+            else if (index === 2) placeClass = 'third-place';
+
+            if (placeClass) {
+                row.classList.add(placeClass);
+            }
+
+            // Создаём содержимое строки
+            row.innerHTML = `
+                <td class="place">${index + 1}</td>
+                <td class="nick">${escapeHtml(player.nick)}</td>
+                <td class="score">${player.score}</td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // Экранирование HTML для безопасности (защита от XSS)
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.toString().replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Обработка ввода ника и сохранения результата
+    function saveScoreWithNick() {
+        const nickInput = document.getElementById('playerNick');
+        const nick = nickInput.value.trim();
+
+        // Проверка на пустоту
+        if (!nick) {
+            alert('Пожалуйста, введите никнейм!');
+            nickInput.focus();
+            return;
+        }
+
+        // Проверка длины ника (максимум 12 символов)
+        if (nick.length > 12) {
+            alert('Никнейм не должен превышать 12 символов!');
+            return;
+        }
+
+        // Добавляем результат и обновляем таблицу
+        addScore(nick, scoreFromUrl);
+        document.getElementById('nickForm').style.display = 'none';
+        renderLeaderboard();
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        // Если есть очки из URL, но нет ника — показываем форму ввода
+        if (scoreFromUrl > 0 && !nickFromUrl) {
+            document.getElementById('nickForm').style.display = 'flex';
+        }
+        // Если есть и ник, и очки — добавляем сразу
+        else if (scoreFromUrl > 0 && nickFromUrl) {
+            addScore(nickFromUrl, scoreFromUrl);
+            renderLeaderboard();
+        }
+        // Иначе просто отображаем текущую таблицу
+        else {
+            renderLeaderboard();
+        }
+    });
+</script>
+</head>
+</HTML>

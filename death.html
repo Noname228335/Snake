@@ -127,13 +127,17 @@
         <div class="actions">
             <a href="Game2.html" class="btn btn-retry">Try again</a>
             <a href="index.html" class="btn btn-menu">Menu</a>
+            <!-- Кнопка для скачивания счёта -->
+            <button class="btn btn-download" id="downloadBtn">leaderboard</button>
+            <a href="Nickname.html" class="btn btn-download"
         </div>
     </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const score = urlParams.get('score') || 0;
-        document.getElementById('finalScore').innerText = score.toString().padStart(3, '0');
+       const urlParams = new URLSearchParams(window.location.search);
+       const score = urlParams.get('score') || 0;
+       document.getElementById('finalScore').innerText = score.toString().padStart(3, '');
+       document.getElementById('downloadBtn').addEventListener('click', downloadScore);
     </script>
-</body>
+    </body>
 </html>
