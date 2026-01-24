@@ -78,15 +78,15 @@
 
         const appleImg = new Image();
         appleImg.src = 'Apple.png';
-
+        
         const grid = 20;
         let count = 0;
         let score = 0;
         let gameOver = false;
 
         let snake = {
-            x: 640,
-            y: 640,
+            x: 240,
+            y: 240,
             dx: grid,
             dy: 0,
             cells: [],
@@ -94,6 +94,10 @@
         };
 
         let apple = {
+            x: 320,
+            y: 320
+        };
+        let apple2 = {
             x: 320,
             y: 320
         };
@@ -130,11 +134,12 @@
 
             // Отрисовка ЕДЫ
             ctx.drawImage(appleImg, apple.x, apple.y, grid, grid);
+            ctx.drawImage(appleImg, apple2.x, apple2.y, grid, grid);
 
             // Отрисовка ЗМЕЙКИ
             snake.cells.forEach(function(cell, index) {
                 if (index === 0) {
-                    // ГОЛОВА с поворотом
+                    // ГОЛОВА с поворотом и сохранением пропорций
                     ctx.save();
                     ctx.translate(cell.x + grid / 2, cell.y + grid / 2);
                     
@@ -146,7 +151,14 @@
                     else if (snake.dy === grid) angle = Math.PI / 2;
                     
                     ctx.rotate(angle);
-                    ctx.drawImage(snakeHeadImg, -grid / 2, -grid / 2, grid, grid);
+
+                    // Масштабируем с сохранением пропорций
+                    const img = snakeHeadImg;
+                    const scale = Math.min(grid / img.width, grid / img.height);
+                    const w = img.width * scale * 1.5;
+                    const h = img.height * scale * 1.5;
+                    ctx.drawImage(img, -w / 2, -h / 2, w, h);
+
                     ctx.restore();
                 } else {
                     // ТЕЛО
@@ -155,13 +167,26 @@
                     ctx.globalAlpha = 1;
                 }
 
-                // Поедание яблока
+                // Поедание яблок
                 if (cell.x === apple.x && cell.y === apple.y) {
                     snake.maxCells++;
                     score += 10;
                     scoreElement.innerText = score.toString().padStart(3, '0');
                     apple.x = getRandomInt(0, 20) * grid;
                     apple.y = getRandomInt(0, 20) * grid;
+                }
+                if (cell.x === apple2.x && cell.y === apple2.y) {
+                    snake.maxCells++;
+                    score += 10;
+                    scoreElement.innerText = score.toString().padStart(3, '0');
+                    apple2.x = getRandomInt(0, 20) * grid;
+                    apple2.y = getRandomInt(0, 20) * grid;
+                    if (apple2.x === apple.x) {
+                        apple2.x = getRandomInt(0, 20) * grid;
+                    }
+                    if (apple2.y === apple.y) {
+                        apple2.y = getRandomInt(0, 20) * grid;
+                    }
                 }
 
                 // Проверка столкновения с собой
