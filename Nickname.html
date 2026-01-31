@@ -206,11 +206,7 @@
 
         // Получаем очки из localStorage (которые сохранила игра)
         const urlParams = new URLSearchParams(window.location.search);
-       const score = urlParams.get('score') || 0;
-        if (score === 0) {
-            showMessage('Очки не найдены! Сыграйте сначала.', 'orange');
-            return;
-        }
+       const score = urlParams.get('score');
 
         // Сохраняем результат в таблицу лидеров
         addScore(nick, score);
@@ -223,19 +219,6 @@
             window.location.href = 'leaderboard.html';
         }, 2000);
     }
-
-    // Инициализация: проверяем, есть ли очки
-    document.addEventListener('DOMContentLoaded', () => {
-        const score = getCurrentScore();
-
-        // Если очков нет, предупреждаем пользователя
-        if (score === 0) {
-            showMessage('Очки не найдены! Сыграйте сначала.', 'orange');
-        } else {
-            // Показываем, сколько очков будет сохранено
-            showMessage(`Ваш текущий счёт: ${score} очков`, 'var(--secondary)');
-        }
-    });
 </script>
 </body>
 </html>
